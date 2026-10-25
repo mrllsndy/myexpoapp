@@ -4,13 +4,15 @@ import { StatusBar } from "expo-status-bar";
 import { useMemo, useState } from "react";
 import { Pressable, ScrollView, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { EmptyCard } from "../components/ui/EmptyCard";
+import { SectionHeader } from "../components/ui/SectionHeader";
+import { TaskRow, type Task } from "../features/tasks/TaskRow";
 import {
-  EmptyCard,
-  SectionHeader,
-  TaskRow,
-  type Task,
-} from "../components/dashboard";
-import { formatToday, greeting } from "../utils/date";
+    addDays,
+    formatShortDate,
+    formatToday,
+    greeting,
+} from "../utils/dates";
 
 // ---------------------------------------------------------------------------
 // SAMPLE DATA: placeholder content so the layout can be built and checked.
@@ -65,22 +67,27 @@ const OVERDUE: Task[] = [
   },
 ];
 
+// Sample exams are defined as "N days from today", so daysLeft and the date
+// label always agree, whatever day the app is opened.
+const examInDays = (n: number) => ({
+  daysLeft: n,
+  date: formatShortDate(addDays(n)),
+});
+
 const EXAMS: Exam[] = [
   {
     id: "e1",
     title: "Midterm exam",
     subject: "Databases",
     color: "#6BB58A",
-    daysLeft: 4,
-    date: "Oct 29",
+    ...examInDays(4),
   },
   {
     id: "e2",
     title: "Quiz 3",
     subject: "Networking",
     color: "#E8A33D",
-    daysLeft: 9,
-    date: "Nov 3",
+    ...examInDays(9),
   },
 ];
 
@@ -189,10 +196,10 @@ export default function Dashboard() {
             {QUICK_ACTIONS.map((a) => (
               <Pressable
                 key={a.label}
-                accessibilityRole="button"
-                accessibilityLabel={`Add ${a.label}`}
                 disabled
+                accessibilityRole="button"
                 accessibilityState={{ disabled: true }}
+                accessibilityLabel={`Add ${a.label} (coming soon)`}
                 className="flex-1 items-center rounded-2xl bg-white py-3.5 opacity-50 shadow-sm"
               >
                 <View className="h-11 w-11 items-center justify-center rounded-full bg-[#E8F1F6]">
@@ -265,7 +272,7 @@ export default function Dashboard() {
                     {e.title}
                   </Text>
                   <Text className="mt-0.5 text-[12px] text-[#5F6F78]">
-                    Example · {e.subject} · {e.date}
+                    {e.subject} · {e.date}
                   </Text>
                 </View>
                 <Ionicons name="chevron-forward" size={18} color="#9AA9B1" />

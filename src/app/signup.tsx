@@ -11,9 +11,9 @@ import {
     View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Field } from "../components/Field";
+import { Field } from "../components/ui/Field";
+import { validateSignup, type SignupErrors } from "../features/auth/validation";
 import { useKeyboardScroll } from "../hooks/useKeyboardScroll";
-import { validate, type Errors } from "../utils/signup";
 
 export default function Signup() {
   const router = useRouter();
@@ -24,14 +24,14 @@ export default function Signup() {
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [errors, setErrors] = useState<Errors>({});
+  const [errors, setErrors] = useState<SignupErrors>({});
   const [loading, setLoading] = useState(false);
 
-  const clear = (key: keyof Errors) =>
+  const clear = (key: keyof SignupErrors) =>
     setErrors((e) => (e[key] ? { ...e, [key]: undefined } : e));
 
   const handleSignUp = async () => {
-    const found = validate(name, email, password, confirm);
+    const found = validateSignup(name, email, password, confirm);
     setErrors(found);
     if (Object.keys(found).length > 0) return;
 

@@ -1,10 +1,10 @@
 import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useState } from "react";
 import {
     ActivityIndicator,
     KeyboardAvoidingView,
-    Platform,
     Pressable,
     ScrollView,
     Text,
@@ -12,6 +12,7 @@ import {
     View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useKeyboardScroll } from "../hooks/useKeyboardScroll";
 
 type Errors = { email?: string; password?: string; form?: string };
 
@@ -29,7 +30,9 @@ function validate(email: string, password: string): Errors {
 }
 
 export default function Login() {
+  const router = useRouter();
   const insets = useSafeAreaInsets();
+  const { scrollRef, keyboardVisible, scrollToFocused } = useKeyboardScroll();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -44,7 +47,7 @@ export default function Login() {
     setLoading(true);
     try {
       // Milestone 3: replace with supabase.auth.signInWithPassword({ email, password })
-      console.log("Sign in", email.trim());
+      router.replace("/dashboard");
     } catch {
       setErrors({
         form: "Something went wrong. Check your connection and try again.",
@@ -57,11 +60,9 @@ export default function Login() {
   return (
     <View className="flex-1 bg-[#FFFCEF]">
       <StatusBar style="light" />
-      <KeyboardAvoidingView
-        className="flex-1"
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
-      >
+      <KeyboardAvoidingView className="flex-1" behavior="padding">
         <ScrollView
+          ref={scrollRef}
           className="flex-1"
           contentContainerClassName="grow"
           keyboardShouldPersistTaps="handled"
@@ -70,7 +71,9 @@ export default function Login() {
         >
           {/* Hero: brand area, extends under the status bar */}
           <View
-            className="min-h-[170px] flex-[2] items-center justify-center overflow-hidden rounded-b-[44px] bg-[#659BB9] px-6"
+            className={`items-center justify-center overflow-hidden rounded-b-[44px] bg-[#659BB9] px-6 ${
+              keyboardVisible ? "" : "min-h-[170px] flex-[2]"
+            }`}
             style={{ paddingTop: insets.top + 16, paddingBottom: 56 }}
           >
             {/* soft decorative circles */}
@@ -138,6 +141,7 @@ export default function Login() {
                     if (errors.email)
                       setErrors((e) => ({ ...e, email: undefined }));
                   }}
+                  onFocus={scrollToFocused}
                   accessibilityLabel="Email address"
                 />
               </View>
@@ -177,6 +181,7 @@ export default function Login() {
                       setErrors((e) => ({ ...e, password: undefined }));
                   }}
                   onSubmitEditing={handleSignIn}
+                  onFocus={scrollToFocused}
                   accessibilityLabel="Password"
                 />
                 <Pressable
@@ -234,6 +239,7 @@ export default function Login() {
                 New to StudySync?{" "}
               </Text>
               <Pressable
+                onPress={() => router.push("/signup")}
                 hitSlop={10}
                 accessibilityRole="link"
                 accessibilityLabel="Create an account"

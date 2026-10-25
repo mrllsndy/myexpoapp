@@ -8,74 +8,12 @@ import {
     Pressable,
     ScrollView,
     Text,
-    TextInput,
     View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Field } from "../components/Field";
 import { useKeyboardScroll } from "../hooks/useKeyboardScroll";
-
-type Errors = {
-  name?: string;
-  email?: string;
-  password?: string;
-  confirm?: string;
-  form?: string;
-};
-
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-function validate(
-  name: string,
-  email: string,
-  password: string,
-  confirm: string,
-): Errors {
-  const errors: Errors = {};
-  if (!name.trim()) errors.name = "Enter your name.";
-  if (!email.trim()) errors.email = "Enter your email address.";
-  else if (!EMAIL_REGEX.test(email.trim()))
-    errors.email = "That doesn't look like a valid email.";
-  if (!password) errors.password = "Create a password.";
-  else if (password.length < 6)
-    errors.password = "Password must be at least 6 characters.";
-  if (!confirm) errors.confirm = "Re-enter your password.";
-  else if (confirm !== password) errors.confirm = "Passwords don't match.";
-  return errors;
-}
-
-type FieldProps = {
-  label: string;
-  icon: keyof typeof Ionicons.glyphMap;
-  error?: string;
-  right?: React.ReactNode;
-} & React.ComponentProps<typeof TextInput>;
-
-function Field({ label, icon, error, right, ...inputProps }: FieldProps) {
-  return (
-    <View className="mb-3">
-      <Text className="mb-1.5 text-[13px] font-semibold text-[#1F2D36]">
-        {label}
-      </Text>
-      <View
-        className={`h-[52px] flex-row items-center gap-2 rounded-2xl border-[1.5px] bg-[#F4F9FC] px-4 ${
-          error ? "border-[#C0392B]" : "border-[#D5E4EC]"
-        }`}
-      >
-        <Ionicons name={icon} size={20} color="#659BB9" />
-        <TextInput
-          className="flex-1 text-[16px] text-[#1F2D36]"
-          placeholderTextColor="#9AA9B1"
-          accessibilityLabel={label}
-          {...inputProps}
-        />
-        {right}
-      </View>
-      {error ? (
-        <Text className="mt-1 text-[12px] text-[#C0392B]">{error}</Text>
-      ) : null}
-    </View>
-  );
-}
+import { validate, type Errors } from "../utils/signup";
 
 export default function Signup() {
   const router = useRouter();
